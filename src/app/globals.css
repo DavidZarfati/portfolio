@@ -268,9 +268,10 @@ main, .nav, .foot {
   font-size: clamp(1.6rem, 3.6vw, 3rem);
   line-height: 1.08;
   letter-spacing: -0.01em;
-  animation: fade 1s var(--ease) 0.35s both;
+  animation: lift 1s var(--ease) 0.2s both;
 }
-@keyframes fade { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+/* Solo scivolamento, senza opacità: il testo è subito visibile (serve a un LCP veloce e stabile) */
+@keyframes lift { from { transform: translateY(14px); } to { transform: none; } }
 .cta {
   display: flex;
   flex-wrap: wrap;
@@ -278,7 +279,7 @@ main, .nav, .foot {
   gap: 0.8rem;
   margin-top: 2.2rem;
 }
-.hero .cta { animation: fade 1s var(--ease) 0.5s both; }
+.hero .cta { animation: lift 1s var(--ease) 0.3s both; }
 .hero-foot {
   position: absolute;
   left: 0;
