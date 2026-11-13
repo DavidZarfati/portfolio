@@ -21,6 +21,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   authors: [{ name: "David Zarfati" }],
   creator: "David Zarfati",
+  // Codice di verifica di Google Search Console (si imposta come variabile su Vercel quando serve).
+  ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
 };
 
 export default async function RootLayout({ children, params }: { children: React.ReactNode; params: Promise<{ lang: string }> }) {

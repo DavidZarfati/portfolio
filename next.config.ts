@@ -4,6 +4,7 @@ import type { NextConfig } from "next";
 const indexable = process.env.SITE_INDEXABLE === "true";
 
 const nextConfig: NextConfig = {
+  images: { formats: ["image/avif", "image/webp"] },
   async redirects() {
     return [{ source: "/", destination: "/it", permanent: false }];
   },

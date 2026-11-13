@@ -44,6 +44,7 @@ export default async function Page({ params }: Props) {
         jobTitle: d.hero.role,
         description: d.meta.description,
         url: `${SITE_URL}/${lang}`,
+        image: `${SITE_URL}/david.jpg`,
         sameAs: [LINKS.linkedin, LINKS.github],
         worksFor: { "@type": "Organization", name: "LEADEXMedia" },
         knowsAbout: ["Artificial intelligence", "Automation", "Web development", "React", "Next.js", "Python", "Technical SEO", "Performance marketing"],

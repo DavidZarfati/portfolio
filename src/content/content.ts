@@ -27,7 +27,7 @@ export type Dict = {
     scroll: string;
     readout: string;
   };
-  about: { label: string; title: string; paragraphs: string[]; facts: { k: string; v: string }[] };
+  about: { label: string; title: string; photoAlt: string; paragraphs: string[]; facts: { k: string; v: string }[] };
   craft: { label: string; title: string; items: { n: string; title: string; text: string; tags: string[] }[] };
   experience: {
     label: string;
@@ -68,6 +68,7 @@ const it: Dict = {
   about: {
     label: "01 — Chi sono",
     title: "A metà strada tra codice e crescita.",
+    photoAlt: "Ritratto di David Zarfati, sviluppatore AI e automazione",
     paragraphs: [
       "Ho una formazione in ingegneria informatica e lavoro dove lo sviluppo software incontra il performance marketing. Costruisco automazioni, bot, integrazioni API e prototipi con AI, e li porto in fretta da idea a strumento che funziona davvero.",
       "In LEADEXMedia unisco le due metà del mestiere: sviluppo siti e landing page, gestisco campagne paid, leggo i dati e creo gli assistenti AI interni che fanno risparmiare tempo al team.",
@@ -230,6 +231,7 @@ const en: Dict = {
   about: {
     label: "01 — About",
     title: "Halfway between code and growth.",
+    photoAlt: "Portrait of David Zarfati, AI and automation developer",
     paragraphs: [
       "I studied computer engineering and I work where software development meets performance marketing. I build automations, bots, API integrations and AI prototypes, and I take them quickly from idea to a tool that actually works.",
       "At LEADEXMedia I combine both halves of the job: I build sites and landing pages, run paid campaigns, read the data and create the internal AI assistants that save the team time.",

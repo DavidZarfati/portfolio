@@ -356,6 +356,41 @@ main, .nav, .foot {
   line-height: 1.55;
   text-shadow: 0 0 22px rgba(10, 11, 10, 0.95);
 }
+/* Ritratto con "ombra" a contorno acido */
+.portrait {
+  margin: 2.6rem 0 0;
+  width: min(100%, 420px);
+}
+.portrait .frame {
+  position: relative;
+  isolation: isolate;
+}
+.portrait .frame::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 1px solid var(--acid);
+  border-radius: 24px;
+  transform: translate(14px, 14px);
+  transition: transform 0.6s var(--ease);
+}
+.portrait:hover .frame::before { transform: translate(8px, 8px); }
+.portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  filter: saturate(0.9) contrast(1.04);
+}
+.portrait figcaption {
+  margin-top: 1.4rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .facts { margin: 2.4rem 0 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
 .facts > div {
   display: grid;

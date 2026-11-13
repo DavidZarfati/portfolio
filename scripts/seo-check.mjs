@@ -77,6 +77,7 @@ for (const lang of LANGS) {
     if (!person) error(path, "JSON-LD senza Person");
     else {
       if (person.name !== "David Zarfati") error(path, "JSON-LD Person: nome diverso");
+      if (!person.image) error(path, "JSON-LD Person senza image");
       for (const u of [LINKEDIN, GITHUB]) if (!(person.sameAs ?? []).includes(u)) error(path, `JSON-LD sameAs senza ${u}`);
     }
   } catch {
@@ -124,6 +125,19 @@ for (const lang of LANGS) {
   // riservatezza: l'email non deve stare nell'HTML (si ricompone solo al click) e nessun segreto
   if (/zarda2001|@gmail\.com/i.test(html)) error(path, "l'indirizzo email compare nell'HTML (deve comparire solo al click)");
   if (/sbp_|sb_secret|service_role|eyJ[A-Za-z0-9_-]{30,}/.test(html)) error(path, "possibile segreto nell'HTML");
+}
+
+// 2b) la foto: raggiungibile, leggera, senza metadati nascosti (EXIF/GPS) e mostrata con testo alternativo
+{
+  const img = await fetch(BASE + "/david.jpg");
+  const buf = Buffer.from(await img.arrayBuffer());
+  if (img.status !== 200 || !(img.headers.get("content-type") ?? "").includes("image/jpeg")) error("/david.jpg", `risposta ${img.status} o tipo non JPEG`);
+  if (buf.length > 250 * 1024) warn("/david.jpg", `foto di ${Math.round(buf.length / 1024)} KB (consigliati < 250 KB)`);
+  if (buf.includes(Buffer.from("Exif\0\0"))) error("/david.jpg", "la foto contiene metadati EXIF (da rimuovere per la riservatezza)");
+  const it = cheerio.load((await get("/it")).text);
+  const photo = it('img[src*="david.jpg"], img[src*="david"]').first();
+  if (!photo.length) error("/it", "la foto non compare nella pagina");
+  else if (!(photo.attr("alt") ?? "").includes("David Zarfati")) error("/it", "la foto non ha un testo alternativo con il nome");
 }
 
 // 3) vere risposte 404

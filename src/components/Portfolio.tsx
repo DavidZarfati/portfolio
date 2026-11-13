@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { CSSProperties } from "react";
 import { content, type Dict, type Project } from "@/content/content";
 import { LINKS, type Lang } from "@/lib/site";
@@ -81,6 +82,12 @@ function About({ d }: { d: Dict }) {
           <h2 className="h2 serif" data-reveal style={rd(1)}>
             {d.about.title}
           </h2>
+          <figure className="portrait" data-reveal style={rd(2)}>
+            <div className="frame">
+              <Image src="/david.jpg" alt={d.about.photoAlt} width={1000} height={1000} sizes="(min-width: 900px) 420px, 88vw" />
+            </div>
+            <figcaption className="mono">David Zarfati · {d.hero.role}</figcaption>
+          </figure>
         </div>
         <div className="prose">
           {d.about.paragraphs.map((p, i) => (
