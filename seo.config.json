@@ -1,0 +1,9 @@
+{
+  "technical": {
+    "titleMin": 10,
+    "titleMax": 70,
+    "titleWarnAbove": 60,
+    "descriptionMin": 70,
+    "descriptionMax": 165
+  }
+}
