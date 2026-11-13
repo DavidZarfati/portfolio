@@ -9,7 +9,7 @@
   --line: rgba(236, 235, 228, 0.14);
   --acid: #c6ff3d;
   --signal: #ff5a1f;
-  --card: rgba(15, 17, 14, 0.66);
+  --card: rgba(15, 17, 14, 0.82);
   --serif: var(--font-serif), "Times New Roman", serif;
   --sans: var(--font-sans), system-ui, sans-serif;
   --mono: var(--font-mono), ui-monospace, monospace;
@@ -69,11 +69,12 @@ body::before {
 body::after {
   content: "";
   position: fixed;
-  inset: -50%;
+  inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.07;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.045;
+  background-image: url("/noise.png");
+  background-size: 128px 128px;
 }
 
 
@@ -153,9 +154,7 @@ main, .nav, .foot {
   justify-content: space-between;
   gap: 1.5rem;
   padding: 0.9rem var(--gutter);
-  background: rgba(10, 11, 10, 0.72);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(10, 11, 10, 0.88);
   border-bottom: 1px solid rgba(236, 235, 228, 0.07);
 }
 .brand {
@@ -313,7 +312,7 @@ main, .nav, .foot {
 }
 .btn-primary { background: var(--acid); color: var(--ink); border-color: var(--acid); }
 .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 14px 44px -12px rgba(198, 255, 61, 0.6); }
-.btn-ghost { background: rgba(236, 235, 228, 0.05); color: var(--paper); backdrop-filter: blur(8px); }
+.btn-ghost { background: rgba(236, 235, 228, 0.05); color: var(--paper); }
 .btn-ghost:hover { border-color: var(--acid); color: var(--acid); transform: translateY(-3px); }
 .btn-sm { padding: 0.5rem 0.95rem; font-size: 0.8rem; }
 .email-out { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0.8rem; }
@@ -376,9 +375,7 @@ main, .nav, .foot {
   gap: 0.6rem 2rem;
   padding: 2.2rem 1rem;
   border-top: 1px solid var(--line);
-  background: rgba(10, 11, 10, 0.5);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
+  background: rgba(10, 11, 10, 0.62);
   transition: background 0.5s;
 }
 .row:last-child { border-bottom: 1px solid var(--line); }
@@ -435,8 +432,6 @@ main, .nav, .foot {
 /* ---------- Card ---------- */
 .card {
   background: var(--card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--line);
   border-radius: 22px;
   padding: clamp(1.4rem, 3vw, 2.4rem);
@@ -469,8 +464,6 @@ main, .nav, .foot {
   border: 1px solid var(--line);
   border-radius: 22px;
   background: var(--card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   text-decoration: none;
   overflow: hidden;
   transition: transform 0.5s var(--ease), border-color 0.4s;
@@ -547,9 +540,7 @@ main, .nav, .foot {
 .groups > div {
   border-top: 1px solid var(--line);
   padding: 1rem 0.9rem 1.1rem;
-  background: rgba(10, 11, 10, 0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(10, 11, 10, 0.7);
   border-radius: 0 0 14px 14px;
 }
 .groups dt { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--acid); margin-bottom: 0.5rem; }
