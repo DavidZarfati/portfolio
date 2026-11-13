@@ -13,12 +13,15 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
+import { createRig, RIG_OUTER } from "./rig";
 
-export type SceneOptions = { count: number; reduced: boolean; maxDpr: number };
+export type SceneOptions = { count: number; reduced: boolean; maxDpr: number; font: string };
 export type SceneState = { progress: number; offsetX: number; scroll: number };
 export type SceneApi = {
   update(state: SceneState): void;
   pointer(nx: number, ny: number): void;
+  /** Posizione e dimensione (in pixel dello schermo) del riquadro della foto nell'hero: il rig lo segue. */
+  hero(a: { cx: number; cy: number; size: number }): void;
   resize(): void;
   dispose(): void;
 };
@@ -252,6 +255,7 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uColA;
   uniform vec3 uColB;
   uniform vec3 uColC;
+  uniform float uAlpha;
   varying float vAlpha;
   varying float vTint;
 
@@ -261,7 +265,7 @@ const fragmentShader = /* glsl */ `
     if (a < 0.01) discard;
     vec3 col = mix(uColA, uColB, smoothstep(0.55, 1.0, vTint));
     col = mix(col, uColC, step(0.97, vTint));
-    gl_FragColor = vec4(col, a * vAlpha);
+    gl_FragColor = vec4(col, a * vAlpha * uAlpha);
   }
 `;
 
@@ -301,6 +305,7 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
     uProgress: { value: 0 },
     uPointer: { value: new Vector2(99, 99) },
     uPixelRatio: { value: 1 },
+    uAlpha: { value: 0 },
     // colori sRGB "grezzi": acido (accento), carta, arancio segnale
     uColA: { value: new Vector3(0.776, 1.0, 0.239) },
     uColB: { value: new Vector3(0.925, 0.922, 0.894) },
@@ -319,6 +324,16 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
   const points = new Points(geometry, material);
   points.frustumCulled = false;
   scene.add(points);
+
+  // Anelli con le tecnologie attorno alla foto (visibili solo nell'hero)
+  const rig = createRig(opts.font);
+  scene.add(rig.group);
+  const hero = { cx: 0, cy: 0, size: 0 };
+  const tilt = { x: 0, y: 0 };
+  const sm = (a: number, b: number, v: number) => {
+    const t = Math.min(1, Math.max(0, (v - a) / (b - a)));
+    return t * t * (3 - 2 * t);
+  };
 
   // stato corrente (smussato) e di destinazione
   const cur = { progress: 0, offsetX: 0, scroll: 0 };
@@ -363,6 +378,14 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
 
     uniforms.uProgress.value = cur.progress;
     uniforms.uTime.value = opts.reduced ? 0 : now / 1000;
+    // Nell'hero c'è solo il rig; la nuvola di punti compare uscendo dall'hero.
+    uniforms.uAlpha.value = sm(0.03, 0.55, cur.progress);
+    const rigAlpha = 1 - sm(0.04, 0.5, cur.progress);
+
+    const tx = Math.abs(ptrTarget.x) <= 1.2 ? ptrTarget.x : 0;
+    const ty = Math.abs(ptrTarget.y) <= 1.2 ? ptrTarget.y : 0;
+    tilt.x += (tx - tilt.x) * 0.06;
+    tilt.y += (ty - tilt.y) * 0.06;
 
     const narrow = aspect < 0.9;
     points.position.x = narrow ? 0 : cur.offsetX;
@@ -372,6 +395,16 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
 
     // posizione del mouse nello spazio dell'oggetto (z = 0)
     uniforms.uPointer.value.set(ptr.x * halfW - points.position.x, ptr.y * halfH - points.position.y);
+
+    // il rig segue il riquadro della foto: pixel dello schermo -> unità del mondo (piano z = 0)
+    if (hero.size > 0 && rigAlpha > 0.01) {
+      const wpp = (2 * halfH) / window.innerHeight;
+      rig.group.position.set((hero.cx / window.innerWidth * 2 - 1) * halfW, -((hero.cy / window.innerHeight) * 2 - 1) * halfH, 0);
+      rig.group.scale.setScalar(Math.max(1e-4, (hero.size * wpp) / (2 * RIG_OUTER)));
+      rig.update(opts.reduced ? 0 : now / 1000, tilt.x, tilt.y, rigAlpha);
+    } else {
+      rig.group.visible = false;
+    }
 
     renderer.render(scene, camera);
 
@@ -416,8 +449,15 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
       ptrTarget.y = ny;
       schedule();
     },
+    hero(a) {
+      hero.cx = a.cx;
+      hero.cy = a.cy;
+      hero.size = a.size;
+      schedule();
+    },
     resize,
     dispose() {
+      rig.dispose();
       disposed = true;
       if (raf) cancelAnimationFrame(raf);
       canvas.removeEventListener("webglcontextlost", onLost);

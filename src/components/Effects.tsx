@@ -72,6 +72,7 @@ export default function Effects() {
       x: parseFloat(el.dataset.x ?? "0"),
     }));
     const readout = document.getElementById("signal-value");
+    const stage = document.getElementById("hero-stage");
     let ticking = false;
 
     function compute() {
@@ -96,6 +97,11 @@ export default function Effects() {
       root.style.setProperty("--scene-dim", dim.toFixed(3));
       if (readout) readout.textContent = `${Math.round((progress / 3) * 100)}%`;
       api?.update({ progress, offsetX: x, scroll: window.scrollY / max });
+      // posizione della foto nell'hero: gli anelli 3D la seguono mentre scorri
+      if (stage) {
+        const r = stage.getBoundingClientRect();
+        api?.hero({ cx: r.left + r.width / 2, cy: r.top + r.height / 2, size: Math.min(r.width, r.height) });
+      }
     }
 
     const onScroll = () => {
@@ -144,11 +150,18 @@ export default function Effects() {
       const canvas = document.getElementById("scene") as HTMLCanvasElement | null;
       if (!canvas) return;
       try {
+        // I caratteri servono alle etichette disegnate nel 3D: aspetta che siano pronti.
+        try {
+          await document.fonts.ready;
+        } catch {
+          /* se non disponibile si usa il carattere di ripiego */
+        }
         // Import dinamico: Three.js non pesa sul primo caricamento della pagina.
         const mod = await import("@/lib/scene");
         if (disposed) return;
         const small = window.innerWidth < 768;
-        const created = await mod.createScene(canvas, { count: small ? 2200 : 7500, reduced, maxDpr: small ? 1.25 : 2 });
+        const font = getComputedStyle(root).getPropertyValue("--font-mono").trim() || "monospace";
+        const created = await mod.createScene(canvas, { count: small ? 2200 : 7500, reduced, maxDpr: small ? 1.25 : 2, font });
         if (disposed) {
           created.dispose();
           return;
