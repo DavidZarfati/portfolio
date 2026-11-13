@@ -12,7 +12,13 @@ const pct = (c) => Math.round(c.score * 100);
 const icon = (n, ok) => (n >= ok ? "🟢" : n >= ok - 15 ? "🟠" : "🔴");
 
 const lines = ["## Lighthouse (mobile)", "", "| Pagina | Prestazioni | Accessibilità | Best practice | SEO | LCP | CLS | TBT |", "|---|---:|---:|---:|---:|---:|---:|---:|"];
-for (const f of readdirSync(dir).filter((f) => /\.report\.json$/.test(f))) {
+// Con più passate il manifest indica la passata mediana ("representative") di ogni pagina.
+let files = readdirSync(dir).filter((f) => /\.report\.json$/.test(f));
+if (existsSync(join(dir, "manifest.json"))) {
+  const rep = JSON.parse(readFileSync(join(dir, "manifest.json"), "utf8")).filter((e) => e.isRepresentativeRun);
+  if (rep.length) files = rep.map((e) => e.jsonPath.split(/[\\/]/).pop());
+}
+for (const f of files) {
   const j = JSON.parse(readFileSync(join(dir, f), "utf8"));
   const c = j.categories;
   const a = j.audits;

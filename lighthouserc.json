@@ -2,7 +2,7 @@
   "ci": {
     "collect": {
       "url": ["http://localhost:3111/it", "http://localhost:3111/en"],
-      "numberOfRuns": 1
+      "numberOfRuns": 3
     },
     "assert": {
       "assertions": {
