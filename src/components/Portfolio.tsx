@@ -64,7 +64,7 @@ function Hero({ d }: { d: Dict }) {
         {/* Foto circolare: al centro degli anelli 3D con le tecnologie (disegnati nel canvas) */}
         <div className="hero-stage" id="hero-stage">
           <div className="hero-photo">
-            <Image src="/david.jpg" alt={d.about.photoAlt} width={640} height={640} sizes="(min-width: 900px) 240px, 44vw" priority />
+            <Image src="/david.jpg" alt={d.about.photoAlt} width={640} height={640} sizes="(min-width: 900px) 240px, 44vw" preload fetchPriority="high" />
             <span className="ring" aria-hidden="true" />
           </div>
         </div>
