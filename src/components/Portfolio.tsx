@@ -32,6 +32,8 @@ function Hero({ d }: { d: Dict }) {
   return (
     <section id="top" className="hero" data-scene="0" data-dim="1" data-x="3.6">
       <div className="wrap hero-inner">
+        <div className="hero-grid">
+        <div className="hero-copy">
         <p className="kicker mono">
           <span className="dot" aria-hidden="true" />
           {d.hero.kicker}
@@ -58,6 +60,15 @@ function Hero({ d }: { d: Dict }) {
             {d.hero.ctaSecondary} <span aria-hidden="true">↗</span>
           </a>
         </div>
+        </div>
+        {/* Foto circolare: al centro degli anelli 3D con le tecnologie (disegnati nel canvas) */}
+        <div className="hero-stage" id="hero-stage">
+          <div className="hero-photo">
+            <Image src="/david.jpg" alt={d.about.photoAlt} width={640} height={640} sizes="(min-width: 900px) 240px, 44vw" preload fetchPriority="high" />
+            <span className="ring" aria-hidden="true" />
+          </div>
+        </div>
+        </div>
         <div className="hero-foot mono" aria-hidden="true">
           <span>
             {d.hero.scroll} <span className="bob">↓</span>
@@ -82,12 +93,6 @@ function About({ d }: { d: Dict }) {
           <h2 className="h2 serif" data-reveal style={rd(1)}>
             {d.about.title}
           </h2>
-          <figure className="portrait" data-reveal style={rd(2)}>
-            <div className="frame">
-              <Image src="/david.jpg" alt={d.about.photoAlt} width={1000} height={1000} sizes="(min-width: 900px) 420px, 88vw" />
-            </div>
-            <figcaption className="mono">David Zarfati · {d.hero.role}</figcaption>
-          </figure>
         </div>
         <div className="prose">
           {d.about.paragraphs.map((p, i) => (
