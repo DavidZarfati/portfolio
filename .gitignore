@@ -42,3 +42,6 @@ next-env.d.ts
 
 # Lighthouse CI
 lighthouse-results/
+
+.vercel
+.env*

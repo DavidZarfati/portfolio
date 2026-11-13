@@ -148,7 +148,12 @@ export default function Effects() {
         const mod = await import("@/lib/scene");
         if (disposed) return;
         const small = window.innerWidth < 768;
-        api = mod.createScene(canvas, { count: small ? 2600 : 7500, reduced, maxDpr: small ? 1.5 : 2 });
+        const created = await mod.createScene(canvas, { count: small ? 2200 : 7500, reduced, maxDpr: small ? 1.25 : 2 });
+        if (disposed) {
+          created.dispose();
+          return;
+        }
+        api = created;
         root.classList.add("scene-on");
         compute();
       } catch {

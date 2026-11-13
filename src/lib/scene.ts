@@ -266,7 +266,10 @@ const fragmentShader = /* glsl */ `
 `;
 
 // ---------- API ----------
-export function createScene(canvas: HTMLCanvasElement, opts: SceneOptions): SceneApi {
+// Cede il thread principale al browser: spezza il lavoro in compiti brevi (meno blocchi, TBT più basso).
+const tick = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions): Promise<SceneApi> {
   const renderer = new WebGLRenderer({ canvas, antialias: false, alpha: true, powerPreference: "high-performance" });
   renderer.setClearColor(0x000000, 0);
 
@@ -276,9 +279,13 @@ export function createScene(canvas: HTMLCanvasElement, opts: SceneOptions): Scen
   const r = rng(20261113);
   const n = opts.count;
   const s0 = shapeNoise(n, r);
+  await tick();
   const s1 = shapeNetwork(n, r);
+  await tick();
   const s2 = shapeChart(n, r);
+  await tick();
   const s3 = shapeGlobe(n, r);
+  await tick();
   const rand = new Float32Array(n * 4);
   for (let i = 0; i < n * 4; i++) rand[i] = r();
 
@@ -387,6 +394,13 @@ export function createScene(canvas: HTMLCanvasElement, opts: SceneOptions): Scen
   };
   canvas.addEventListener("webglcontextlost", onLost);
 
+  // Compila gli shader senza bloccare la pagina (se il browser lo supporta); poi parte il disegno.
+  try {
+    await renderer.compileAsync(scene, camera);
+  } catch {
+    /* in caso di errore la compilazione avviene al primo frame */
+  }
+  await tick();
   resize();
   schedule();
 
