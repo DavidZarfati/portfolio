@@ -161,21 +161,34 @@ export default function Effects() {
       }
     };
 
-    // La scena parte solo quando il browser è libero e la pagina è già caricata.
+    // La scena parte alla PRIMA INTERAZIONE (mouse, scroll, tocco, tastiera) o al più tardi dopo 8 secondi,
+    // e solo quando il browser è libero. Così il primo caricamento resta leggero e veloce (LCP, TBT).
     const run = () => {
       if ("requestIdleCallback" in window) {
-        const id = window.requestIdleCallback(start, { timeout: 2000 });
+        const id = window.requestIdleCallback(start, { timeout: 1500 });
         cleanups.push(() => window.cancelIdleCallback(id));
       } else {
-        const id = setTimeout(start, 800);
+        const id = setTimeout(start, 400);
         cleanups.push(() => clearTimeout(id));
       }
     };
-    if (document.readyState === "complete") run();
-    else {
-      window.addEventListener("load", run, { once: true });
-      cleanups.push(() => window.removeEventListener("load", run));
-    }
+    let triggered = false;
+    const triggers = ["pointermove", "scroll", "touchstart", "keydown", "wheel", "click"] as const;
+    const fire = () => {
+      if (triggered) return;
+      triggered = true;
+      for (const t of triggers) window.removeEventListener(t, fire);
+      clearTimeout(fallback);
+      if (document.readyState === "complete") run();
+      else window.addEventListener("load", run, { once: true });
+    };
+    const fallback = setTimeout(fire, 8000);
+    for (const t of triggers) window.addEventListener(t, fire, { passive: true });
+    cleanups.push(() => {
+      clearTimeout(fallback);
+      for (const t of triggers) window.removeEventListener(t, fire);
+      window.removeEventListener("load", run);
+    });
 
     compute();
 

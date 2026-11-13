@@ -49,6 +49,22 @@ body::before {
     radial-gradient(50vmax 40vmax at 12% 85%, rgba(255, 90, 31, 0.07), transparent 60%);
 }
 
+/* Reticolo di punti leggero: riempie il vuoto finché la scena 3D non parte (e se non parte) */
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(198, 255, 61, 0.22) 1px, transparent 1.4px);
+  background-size: 34px 34px;
+  -webkit-mask-image: radial-gradient(70% 60% at 72% 40%, #000, transparent 75%);
+  mask-image: radial-gradient(70% 60% at 72% 40%, #000, transparent 75%);
+  opacity: 0.9;
+  transition: opacity 1.2s;
+}
+.scene-on .hero::before { opacity: 0; }
+
 /* Grana fine sopra tutto: dà materia al nero */
 body::after {
   content: "";
