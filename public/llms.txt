@@ -1,0 +1,15 @@
+# David Zarfati
+
+> AI & Automation Developer — Python, agenti AI, full-stack (Next.js, Supabase), SEO tecnico e performance marketing. Portfolio bilingue (IT/EN).
+
+## Pagine
+- [Italiano](https://portfolio-rose-three-g798mo2mbq.vercel.app/it): presentazione, competenze, esperienza, progetti, stack.
+- [English](https://portfolio-rose-three-g798mo2mbq.vercel.app/en): same content in English.
+
+## Profili pubblici
+- [LinkedIn](https://www.linkedin.com/in/david-zarfati-64889026a/)
+- [GitHub](https://github.com/DavidZarfati)
+- [Codice di questo sito](https://github.com/DavidZarfati/portfolio)
+
+## Note
+Contiene solo informazioni pubbliche. Per contatti usare LinkedIn.
