@@ -16,13 +16,13 @@ export default async function OgImage({ params }: { params: Promise<{ lang: stri
   });
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", background: "#0a0b0a", color: "#ecebe4", padding: 72, position: "relative" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "flex-end", background: "#04060c", color: "#e6f1ff", padding: 72, position: "relative" }}>
         {dots.map((p, i) => (
-          <div key={i} style={{ position: "absolute", left: p.x, top: p.y, width: p.s, height: p.s, borderRadius: 99, background: i % 11 === 0 ? "#ff5a1f" : "#c6ff3d", opacity: 0.8 }} />
+          <div key={i} style={{ position: "absolute", left: p.x, top: p.y, width: p.s, height: p.s, borderRadius: 99, background: i % 11 === 0 ? "#ff4fd8" : i % 3 === 0 ? "#a78bfa" : "#22e0ff", opacity: 0.8 }} />
         ))}
-        <div style={{ fontSize: 26, letterSpacing: 4, color: "#c6ff3d", textTransform: "uppercase" }}>AI & Automation · Full-Stack · Marketing</div>
+        <div style={{ fontSize: 26, letterSpacing: 4, color: "#22e0ff", textTransform: "uppercase" }}>AI & Automation · Full-Stack · Marketing</div>
         <div style={{ fontSize: 120, lineHeight: 1, marginTop: 18 }}>David Zarfati</div>
-        <div style={{ fontSize: 34, marginTop: 24, color: "#a3a49a", maxWidth: 760 }}>{d.hero.lead}</div>
+        <div style={{ fontSize: 34, marginTop: 24, color: "#7c8ba3", maxWidth: 760 }}>{d.hero.lead}</div>
       </div>
     ),
     size,
