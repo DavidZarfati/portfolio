@@ -30,7 +30,7 @@ const RINGS = [
 /** Raggio esterno del sistema (anello più grande + metà etichetta), in unità del rig. */
 export const RIG_OUTER = 2.0;
 const RING_MAX = 1.62;
-const RING_COLORS = [0x22e0ff, 0xa78bfa, 0x22e0ff];
+const RING_COLORS = [0x4d7cff, 0x9fd0ff, 0x4d7cff];
 
 const smooth = (a: number, b: number, v: number) => {
   const t = Math.min(1, Math.max(0, (v - a) / (b - a)));
@@ -67,12 +67,12 @@ function labelTexture(text: string, font: string) {
   g.lineTo(4 + r, H - 4);
   g.arc(4 + r, 4 + r, r, Math.PI / 2, (Math.PI * 3) / 2);
   g.closePath();
-  g.fillStyle = "rgba(4,8,18,0.86)";
+  g.fillStyle = "rgba(5,9,18,0.88)";
   g.fill();
-  g.strokeStyle = "rgba(34,224,255,0.65)";
+  g.strokeStyle = "rgba(77,124,255,0.85)";
   g.lineWidth = 3;
   g.stroke();
-  g.fillStyle = "#e6f1ff";
+  g.fillStyle = "#e8efff";
   g.font = `500 38px ${font}`;
   g.textAlign = "center";
   g.textBaseline = "middle";
@@ -92,7 +92,7 @@ export function createRig(font: string) {
   const fades: Fade[] = [];
 
   // alone luminoso dietro la foto
-  const halo = new Sprite(new SpriteMaterial({ map: dot, color: 0x3aa8ff, transparent: true, depthWrite: false, blending: AdditiveBlending, opacity: 0 }));
+  const halo = new Sprite(new SpriteMaterial({ map: dot, color: 0x4d7cff, transparent: true, depthWrite: false, blending: AdditiveBlending, opacity: 0 }));
   halo.scale.setScalar(3.4);
   fades.push({ m: halo.material, base: 0.2 });
   group.add(halo);
