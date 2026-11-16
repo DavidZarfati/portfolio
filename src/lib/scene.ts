@@ -306,10 +306,10 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
     uPointer: { value: new Vector2(99, 99) },
     uPixelRatio: { value: 1 },
     uAlpha: { value: 0 },
-    // colori sRGB "grezzi": acido (accento), carta, arancio segnale
-    uColA: { value: new Vector3(0.776, 1.0, 0.239) },
-    uColB: { value: new Vector3(0.925, 0.922, 0.894) },
-    uColC: { value: new Vector3(1.0, 0.353, 0.122) },
+    // colori sRGB "grezzi": blu elettrico (accento), azzurro ghiaccio, bianco (scintille rare)
+    uColA: { value: new Vector3(0.302, 0.486, 1.0) },
+    uColB: { value: new Vector3(0.624, 0.816, 1.0) },
+    uColC: { value: new Vector3(1.0, 1.0, 1.0) },
   };
 
   const material = new ShaderMaterial({

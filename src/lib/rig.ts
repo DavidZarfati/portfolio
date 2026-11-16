@@ -30,6 +30,7 @@ const RINGS = [
 /** Raggio esterno del sistema (anello più grande + metà etichetta), in unità del rig. */
 export const RIG_OUTER = 2.0;
 const RING_MAX = 1.62;
+const RING_COLORS = [0x4d7cff, 0x9fd0ff, 0x4d7cff];
 
 const smooth = (a: number, b: number, v: number) => {
   const t = Math.min(1, Math.max(0, (v - a) / (b - a)));
@@ -66,12 +67,12 @@ function labelTexture(text: string, font: string) {
   g.lineTo(4 + r, H - 4);
   g.arc(4 + r, 4 + r, r, Math.PI / 2, (Math.PI * 3) / 2);
   g.closePath();
-  g.fillStyle = "rgba(10,11,10,0.82)";
+  g.fillStyle = "rgba(5,9,18,0.88)";
   g.fill();
-  g.strokeStyle = "rgba(198,255,61,0.6)";
+  g.strokeStyle = "rgba(77,124,255,0.85)";
   g.lineWidth = 3;
   g.stroke();
-  g.fillStyle = "#ecebe4";
+  g.fillStyle = "#e8efff";
   g.font = `500 38px ${font}`;
   g.textAlign = "center";
   g.textBaseline = "middle";
@@ -91,7 +92,7 @@ export function createRig(font: string) {
   const fades: Fade[] = [];
 
   // alone luminoso dietro la foto
-  const halo = new Sprite(new SpriteMaterial({ map: dot, color: 0xc6ff3d, transparent: true, depthWrite: false, blending: AdditiveBlending, opacity: 0 }));
+  const halo = new Sprite(new SpriteMaterial({ map: dot, color: 0x4d7cff, transparent: true, depthWrite: false, blending: AdditiveBlending, opacity: 0 }));
   halo.scale.setScalar(3.4);
   fades.push({ m: halo.material, base: 0.2 });
   group.add(halo);
@@ -113,7 +114,7 @@ export function createRig(font: string) {
     }
     const lineGeo = new BufferGeometry();
     lineGeo.setAttribute("position", new Float32BufferAttribute(arr, 3));
-    const lineMat = new LineBasicMaterial({ color: 0xc6ff3d, transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false });
+    const lineMat = new LineBasicMaterial({ color: RING_COLORS[ri], transparent: true, opacity: 0, blending: AdditiveBlending, depthWrite: false });
     fades.push({ m: lineMat, base: 0.45 });
     spin.add(new LineLoop(lineGeo, lineMat));
 
@@ -127,7 +128,7 @@ export function createRig(font: string) {
     }
     const dotGeo = new BufferGeometry();
     dotGeo.setAttribute("position", new Float32BufferAttribute(darr, 3));
-    const dotMat = new PointsMaterial({ size: 0.04, map: dot, color: 0xecebe4, transparent: true, depthWrite: false, blending: AdditiveBlending, opacity: 0 });
+    const dotMat = new PointsMaterial({ size: 0.04, map: dot, color: 0xcfe6ff, transparent: true, depthWrite: false, blending: AdditiveBlending, opacity: 0 });
     fades.push({ m: dotMat, base: 0.55 });
     spin.add(new Points(dotGeo, dotMat));
 
@@ -136,7 +137,7 @@ export function createRig(font: string) {
     const satAttr = new Float32BufferAttribute(new Float32Array(2 * 3), 3);
     satAttr.setUsage(DynamicDrawUsage);
     satGeo.setAttribute("position", satAttr);
-    const satMat = new PointsMaterial({ size: 0.17, map: dot, color: 0xc6ff3d, transparent: true, depthWrite: false, blending: AdditiveBlending, opacity: 0 });
+    const satMat = new PointsMaterial({ size: 0.17, map: dot, color: RING_COLORS[ri], transparent: true, depthWrite: false, blending: AdditiveBlending, opacity: 0 });
     fades.push({ m: satMat, base: 1 });
     const sats = new Points(satGeo, satMat);
     sats.frustumCulled = false;

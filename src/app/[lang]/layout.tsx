@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Serif, JetBrains_Mono, Schibsted_Grotesk } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import Effects from "@/components/Effects";
 import { content } from "@/content/content";
 import { LANGS, SITE_URL, isLang } from "@/lib/site";
 import "../globals.css";
 
 const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-serif", display: "swap" });
-const sans = Schibsted_Grotesk({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
-const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
+const sans = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const dynamicParams = false;
 
@@ -15,7 +15,7 @@ export function generateStaticParams() {
   return LANGS.map((lang) => ({ lang }));
 }
 
-export const viewport: Viewport = { themeColor: "#0a0b0a", colorScheme: "dark" };
+export const viewport: Viewport = { themeColor: "#08090a", colorScheme: "dark" };
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
