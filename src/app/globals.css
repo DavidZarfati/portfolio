@@ -318,7 +318,7 @@ main, .nav, .foot { position: relative; z-index: 2; }
   aspect-ratio: 1;
   margin-inline: auto;
 }
-.hero-photo { position: relative; width: 50%; aspect-ratio: 1; border-radius: 50%; }
+.hero-photo { position: relative; width: 44%; aspect-ratio: 1; border-radius: 50%; }
 .hero-photo img {
   display: block;
   width: 100%;
@@ -340,10 +340,12 @@ main, .nav, .foot { position: relative; z-index: 2; }
   z-index: -1;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+/* Con la scena 3D attiva la foto è disegnata nel canvas: quella HTML resta come ripiego e per i motori di ricerca */
+.photo-3d .hero-photo img, .photo-3d .hero-photo .ring { visibility: hidden; }
 @media (min-width: 900px) {
-  .hero-grid { grid-template-columns: 1.15fr 0.85fr; gap: 1rem; }
-  .hero-stage { order: 0; width: min(100%, 540px); margin-inline: 0; justify-self: end; }
-  .hero-photo { width: 42%; }
+  .hero-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .hero-stage { order: 0; width: min(100%, 600px); margin-inline: 0; justify-self: end; }
+  .hero-photo { width: 37%; }
   .name { font-size: clamp(4.4rem, 9.4vw, 9rem); }
 }
 
