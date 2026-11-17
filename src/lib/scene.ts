@@ -21,7 +21,9 @@ export type SceneApi = {
   update(state: SceneState): void;
   pointer(nx: number, ny: number): void;
   /** Posizione e dimensione (in pixel dello schermo) del riquadro della foto nell'hero: il rig lo segue. */
-  hero(a: { cx: number; cy: number; size: number }): void;
+  hero(a: { cx: number; cy: number; size: number; photo?: number }): void;
+  /** Vero se la foto è stata disegnata nella scena (allora quella HTML si può nascondere). */
+  photoReady: Promise<boolean>;
   resize(): void;
   dispose(): void;
 };
@@ -325,10 +327,10 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
   points.frustumCulled = false;
   scene.add(points);
 
-  // Anelli con le tecnologie attorno alla foto (visibili solo nell'hero)
-  const rig = createRig(opts.font);
+  // Icone delle tecnologie che orbitano attorno alla foto (visibili solo nell'hero)
+  const rig = createRig();
   scene.add(rig.group);
-  const hero = { cx: 0, cy: 0, size: 0 };
+  const hero = { cx: 0, cy: 0, size: 0, photo: 0.42 };
   const tilt = { x: 0, y: 0 };
   const sm = (a: number, b: number, v: number) => {
     const t = Math.min(1, Math.max(0, (v - a) / (b - a)));
@@ -397,11 +399,11 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
     uniforms.uPointer.value.set(ptr.x * halfW - points.position.x, ptr.y * halfH - points.position.y);
 
     // il rig segue il riquadro della foto: pixel dello schermo -> unità del mondo (piano z = 0)
-    if (hero.size > 0 && rigAlpha > 0.01) {
+    if (hero.size > 0 && hero.cy + hero.size / 2 > 0) {
       const wpp = (2 * halfH) / window.innerHeight;
       rig.group.position.set((hero.cx / window.innerWidth * 2 - 1) * halfW, -((hero.cy / window.innerHeight) * 2 - 1) * halfH, 0);
       rig.group.scale.setScalar(Math.max(1e-4, (hero.size * wpp) / (2 * RIG_OUTER)));
-      rig.update(opts.reduced ? 0 : now / 1000, tilt.x, tilt.y, rigAlpha);
+      rig.update(opts.reduced ? 0 : now / 1000, tilt.x, tilt.y, rigAlpha, hero.photo);
     } else {
       rig.group.visible = false;
     }
@@ -453,8 +455,10 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
       hero.cx = a.cx;
       hero.cy = a.cy;
       hero.size = a.size;
+      if (a.photo) hero.photo = a.photo;
       schedule();
     },
+    photoReady: rig.photoReady,
     resize,
     dispose() {
       rig.dispose();

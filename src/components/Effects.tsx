@@ -73,6 +73,7 @@ export default function Effects() {
     }));
     const readout = document.getElementById("signal-value");
     const stage = document.getElementById("hero-stage");
+    const photoEl = stage?.querySelector<HTMLElement>(".hero-photo") ?? null;
     let ticking = false;
 
     function compute() {
@@ -100,7 +101,9 @@ export default function Effects() {
       // posizione della foto nell'hero: gli anelli 3D la seguono mentre scorri
       if (stage) {
         const r = stage.getBoundingClientRect();
-        api?.hero({ cx: r.left + r.width / 2, cy: r.top + r.height / 2, size: Math.min(r.width, r.height) });
+        const size = Math.min(r.width, r.height);
+        const pr = photoEl?.getBoundingClientRect();
+        api?.hero({ cx: r.left + r.width / 2, cy: r.top + r.height / 2, size, photo: pr && size > 0 ? pr.width / size : undefined });
       }
     }
 
@@ -169,6 +172,12 @@ export default function Effects() {
         api = created;
         root.classList.add("scene-on");
         compute();
+        // Quando la foto è disegnata anche nella scena (con le icone che le passano davanti e dietro), si nasconde quella HTML.
+        void created.photoReady.then((ok) => {
+          if (!ok || disposed) return;
+          const id = setTimeout(() => root.classList.add("photo-3d"), 1600);
+          cleanups.push(() => clearTimeout(id));
+        });
       } catch {
         // WebGL non disponibile: resta lo sfondo CSS, il sito funziona uguale.
       }
