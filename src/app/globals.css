@@ -207,7 +207,8 @@ main, .nav, .foot { position: relative; z-index: 2; }
 /* ---------- Hero ---------- */
 .hero {
   position: relative;
-  min-height: 100svh;
+  /* tetto all'altezza: se il telefono mostra la "versione desktop" (schermo largo e altissimo) l'hero non diventa un deserto */
+  min-height: min(100svh, 52rem);
   display: flex;
   align-items: flex-end;
   padding: 7rem 0 5.5rem;
