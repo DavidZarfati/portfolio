@@ -187,7 +187,7 @@ export default function Effects() {
       });
     }
 
-    // Card inclinate verso il mouse, pulsanti "magnetici" e onda luminosa al clic
+    // Card inclinate verso il mouse, titolo dei contatti "magnetico" e onda luminosa al clic sui pulsanti
     if (finePointer && !reduced) {
       let tilted: HTMLElement | null = null;
       const resetTilt = (el: HTMLElement | null) => {
@@ -195,7 +195,7 @@ export default function Effects() {
         el.style.setProperty("--rx", "0deg");
         el.style.setProperty("--ry", "0deg");
       };
-      const magnets = Array.from(document.querySelectorAll<HTMLElement>(".cta .btn, .mega a"));
+      const magnets = Array.from(document.querySelectorAll<HTMLElement>(".mega a"));
       const onTilt = (e: PointerEvent) => {
         const el = (e.target as HTMLElement | null)?.closest<HTMLElement>(".project-link, .row") ?? null;
         if (el !== tilted) {
