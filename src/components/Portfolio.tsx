@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { content, type Dict, type Project } from "@/content/content";
 import { LINKS, type Lang } from "@/lib/site";
+import { STACK_ICONS } from "@/lib/stack-icons";
 import EmailReveal from "./EmailReveal";
 
 const rd = (i: number, step = 0.08): CSSProperties => ({ ["--rd" as string]: `${(i * step).toFixed(2)}s` });
@@ -40,16 +41,16 @@ function Hero({ d }: { d: Dict }) {
         </p>
         <h1 className="name">
           <span className="mask">
-            <span className="rise" style={{ ["--d" as string]: "0.05s" }}>
+            <span className="rise" data-decipher aria-hidden="true" style={{ ["--d" as string]: "0.05s" }}>
               David
             </span>
           </span>{" "}
           <span className="mask">
-            <span className="rise accent" style={{ ["--d" as string]: "0.18s" }}>
+            <span className="rise accent" data-decipher aria-hidden="true" style={{ ["--d" as string]: "0.18s" }}>
               Zarfati
             </span>
           </span>
-          <span className="sr"> — {d.hero.role}</span>
+          <span className="sr">David Zarfati — {d.hero.role}</span>
         </h1>
         <p className="lead serif">{d.hero.lead}</p>
         <div className="cta">
@@ -229,10 +230,6 @@ function Work({ d }: { d: Dict }) {
 }
 
 function Stack({ d }: { d: Dict }) {
-  const all = d.stack.groups.flatMap((g) => g.items);
-  const half = Math.ceil(all.length / 2);
-  const rowA = all.slice(0, half);
-  const rowB = all.slice(half);
   return (
     <section id="stack" className="section" data-scene="3" data-dim="0.75" data-x="0">
       <div className="wrap">
@@ -243,18 +240,17 @@ function Stack({ d }: { d: Dict }) {
           {d.stack.title}
         </h2>
       </div>
-      <div className="marquees" aria-hidden="true">
-        {[rowA, rowB].map((row, k) => (
-          <div className="marquee" key={k}>
-            <div className={`track${k ? " rev" : ""}`}>
-              {[...row, ...row].map((t, i) => (
-                <span key={`${t}-${i}`} className="serif">
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
+      <div className="wrap">
+        <ul className="logos" aria-hidden="true">
+          {STACK_ICONS.map((t, i) => (
+            <li key={t.slug} className="logo" style={{ ["--i" as string]: i, ["--brand" as string]: `#${["000000", "181717"].includes(t.hex) ? "4d7cff" : t.hex}` } as CSSProperties}>
+              <span className="logo-tile">
+                <Image src={`/tech/${t.slug}.svg`} alt={`Logo ${t.label}`} width={30} height={30} unoptimized loading="lazy" />
+              </span>
+              <span className="logo-name mono">{t.label}</span>
+            </li>
+          ))}
+        </ul>
       </div>
       <div className="wrap">
         <dl className="groups">
@@ -337,6 +333,15 @@ export default function Portfolio({ lang }: { lang: Lang }) {
         <Creds d={d} />
         <Contact d={d} />
       </main>
+      <div className="hud" aria-hidden="true">
+        <span className="hud-line">
+          <i />
+        </span>
+        <span className="hud-text mono" id="hud-text">
+          01 / 08
+        </span>
+      </div>
+      <div className="progress" aria-hidden="true" />
       <footer className="foot">
         <div className="wrap foot-in mono">
           <span>© 2026 David Zarfati</span>
