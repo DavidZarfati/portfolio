@@ -19,6 +19,37 @@ export default function Effects() {
     let api: SceneApi | null = null;
     let disposed = false;
 
+    // 0) Il nome si "decifra": parte da caratteri casuali e si compone da sinistra a destra.
+    if (!reduced) {
+      const GLYPHS = "01<>/{}[]#$%&@ABCDEFXYZ";
+      const scramble = (len: number) => Array.from({ length: len }, () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)]).join("");
+      document.querySelectorAll<HTMLElement>("[data-decipher]").forEach((el, idx) => {
+        const final = (el.dataset.final ??= el.textContent ?? "");
+        const begin = performance.now() + 120 + idx * 140;
+        const dur = 700 + final.length * 70;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        el.textContent = scramble(final.length);
+        // Con i timer (non con requestAnimationFrame) il testo finale torna sempre, anche se la scheda è in background o a un crawler.
+        const step = () => {
+          const t = (performance.now() - begin) / dur;
+          if (t >= 1) {
+            el.textContent = final;
+            return;
+          }
+          const done = Math.max(0, Math.floor(t * final.length));
+          el.textContent = final.slice(0, done) + scramble(final.length - done);
+          timer = setTimeout(step, 45);
+        };
+        timer = setTimeout(step, 45);
+        const hard = setTimeout(() => (el.textContent = final), dur + 600 + idx * 140);
+        cleanups.push(() => {
+          clearTimeout(timer);
+          clearTimeout(hard);
+          el.textContent = final;
+        });
+      });
+    }
+
     // 1) Comparsa degli elementi con lo scroll. Se JS non parte, tutto resta visibile.
     if (!reduced && "IntersectionObserver" in window) {
       const io = new IntersectionObserver(
@@ -76,8 +107,29 @@ export default function Effects() {
     const photoEl = stage?.querySelector<HTMLElement>(".hero-photo") ?? null;
     let ticking = false;
 
+    // Barra di avanzamento e contatore di sezione (HUD)
+    const sections = Array.from(document.querySelectorAll<HTMLElement>("main > section"));
+    const hudText = document.getElementById("hud-text");
+    const pad = (v: number) => String(v).padStart(2, "0");
+    const names = sections.map((sec) => {
+      const l = sec.querySelector(".label")?.textContent ?? "";
+      return l.replace(/^\d+\s*[—-]\s*/, "").trim() || (document.documentElement.lang === "it" ? "Inizio" : "Start");
+    });
+    let hudIdx = -1;
+    function hud() {
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      root.style.setProperty("--p", Math.min(1, window.scrollY / maxScroll).toFixed(4));
+      let k = 0;
+      for (let i = 0; i < sections.length; i++) if (sections[i].getBoundingClientRect().top <= window.innerHeight * 0.45) k = i;
+      if (k !== hudIdx && hudText && sections.length) {
+        hudIdx = k;
+        hudText.textContent = `${pad(k + 1)} / ${pad(sections.length)} · ${names[k]}`;
+      }
+    }
+
     function compute() {
       ticking = false;
+      hud();
       if (!anchors.length) return;
       const y = window.scrollY + window.innerHeight * 0.5;
       const centers = anchors.map((a) => {
@@ -135,6 +187,65 @@ export default function Effects() {
       });
     }
 
+    // Card inclinate verso il mouse, pulsanti "magnetici" e onda luminosa al clic
+    if (finePointer && !reduced) {
+      let tilted: HTMLElement | null = null;
+      const resetTilt = (el: HTMLElement | null) => {
+        if (!el) return;
+        el.style.setProperty("--rx", "0deg");
+        el.style.setProperty("--ry", "0deg");
+      };
+      const magnets = Array.from(document.querySelectorAll<HTMLElement>(".cta .btn, .mega a"));
+      const onTilt = (e: PointerEvent) => {
+        const el = (e.target as HTMLElement | null)?.closest<HTMLElement>(".project-link, .row") ?? null;
+        if (el !== tilted) {
+          resetTilt(tilted);
+          tilted = el;
+        }
+        if (el) {
+          const r = el.getBoundingClientRect();
+          const px = (e.clientX - r.left) / r.width - 0.5;
+          const py = (e.clientY - r.top) / r.height - 0.5;
+          el.style.setProperty("--rx", `${(-py * 7).toFixed(2)}deg`);
+          el.style.setProperty("--ry", `${(px * 9).toFixed(2)}deg`);
+        }
+        for (const m of magnets) {
+          const r = m.getBoundingClientRect();
+          const dx = e.clientX - (r.left + r.width / 2);
+          const dy = e.clientY - (r.top + r.height / 2);
+          const reach = Math.max(r.width, r.height) * 0.8 + 40;
+          const dist = Math.hypot(dx, dy);
+          if (dist < reach) {
+            const k = 0.18 * (1 - dist / reach) + 0.06;
+            const cl = (v: number) => Math.max(-14, Math.min(14, v));
+            m.style.setProperty("--tx", `${cl(dx * k).toFixed(1)}px`);
+            m.style.setProperty("--ty", `${cl(dy * k).toFixed(1)}px`);
+          } else {
+            m.style.removeProperty("--tx");
+            m.style.removeProperty("--ty");
+          }
+        }
+      };
+      const onDown = (e: PointerEvent) => {
+        const btn = (e.target as HTMLElement | null)?.closest<HTMLElement>(".btn");
+        if (!btn) return;
+        const r = btn.getBoundingClientRect();
+        const wave = document.createElement("span");
+        wave.className = "ripple";
+        wave.style.left = `${e.clientX - r.left}px`;
+        wave.style.top = `${e.clientY - r.top}px`;
+        btn.appendChild(wave);
+        setTimeout(() => wave.remove(), 800);
+      };
+      document.addEventListener("pointermove", onTilt, { passive: true });
+      document.addEventListener("pointerdown", onDown, { passive: true });
+      cleanups.push(() => {
+        document.removeEventListener("pointermove", onTilt);
+        document.removeEventListener("pointerdown", onDown);
+        resetTilt(tilted);
+      });
+    }
+
     // Alone luminoso sulle card dei progetti che segue il mouse
     if (finePointer) {
       const onCard = (e: PointerEvent) => {
@@ -163,7 +274,7 @@ export default function Effects() {
         const mod = await import("@/lib/scene");
         if (disposed) return;
         const small = window.innerWidth < 768;
-        const font = getComputedStyle(root).getPropertyValue("--font-mono").trim() || "monospace";
+        const font = getComputedStyle(root).getPropertyValue("--font-sans").trim() || "system-ui, sans-serif";
         const created = await mod.createScene(canvas, { count: small ? 2200 : 7500, reduced, maxDpr: small ? 1.25 : 2, font });
         if (disposed) {
           created.dispose();

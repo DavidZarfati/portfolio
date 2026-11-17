@@ -1,5 +1,5 @@
 // Scena Three.js: UNA nuvola di punti che cambia forma con lo scroll.
-//   0 rumore  ->  1 rete (AI)  ->  2 grafico in crescita (marketing)  ->  3 globo (stack/contatti)
+//   rumore  ->  scritta "AI"  ->  rete  ->  grafico in crescita (marketing)  ->  globo (stack/contatti)
 // Un solo contesto WebGL, una sola draw call. Caricata dopo il contenuto (import dinamico) per non pesare su LCP e SEO.
 import {
   AdditiveBlending,
@@ -54,7 +54,39 @@ function inSphere(r: () => number, radius: number, out: number[]) {
   out[2] = rad * s * Math.sin(th);
 }
 
-// ---------- le quattro forme ----------
+// ---------- le forme ----------
+// La scritta "AI": i punti si posano sui pixel di un testo disegnato in un canvas.
+function shapeText(n: number, r: () => number, font: string) {
+  const W = 1024;
+  const H = 512;
+  const c = document.createElement("canvas");
+  c.width = W;
+  c.height = H;
+  const g = c.getContext("2d")!;
+  g.fillStyle = "#fff";
+  g.textAlign = "center";
+  g.textBaseline = "middle";
+  g.font = `700 520px ${font}`;
+  g.fillText("AI", W / 2, H / 2 + 14);
+  const data = g.getImageData(0, 0, W, H).data;
+  const pts: number[] = [];
+  for (let y = 0; y < H; y += 3) {
+    for (let x = 0; x < W; x += 3) {
+      if (data[(y * W + x) * 4 + 3] > 128) pts.push(x, y);
+    }
+  }
+  const a = new Float32Array(n * 3);
+  if (pts.length < 40) return shapeNoise(n, r);
+  const k = 15 / W;
+  for (let i = 0; i < n; i++) {
+    const j = Math.floor(r() * (pts.length / 2)) * 2;
+    a[i * 3] = (pts[j] - W / 2 + (r() - 0.5) * 3) * k;
+    a[i * 3 + 1] = -(pts[j + 1] - H / 2 + (r() - 0.5) * 3) * k;
+    a[i * 3 + 2] = gauss(r) * 0.14;
+  }
+  return a;
+}
+
 function shapeNoise(n: number, r: () => number) {
   const a = new Float32Array(n * 3);
   const p = [0, 0, 0];
@@ -212,6 +244,7 @@ const vertexShader = /* glsl */ `
   attribute vec3 aP1;
   attribute vec3 aP2;
   attribute vec3 aP3;
+  attribute vec3 aP4;
   attribute vec4 aR;
   uniform float uTime;
   uniform float uProgress;
@@ -222,7 +255,7 @@ const vertexShader = /* glsl */ `
 
   void main() {
     // Ogni punto parte con un piccolo ritardo diverso: la trasformazione è organica, non rigida.
-    float pr = clamp(uProgress + (aR.x - 0.5) * 0.45, 0.0, 2.999);
+    float pr = clamp(uProgress + (aR.x - 0.5) * 0.45, 0.0, 3.999);
     float i = floor(pr);
     float f = pr - i;
     float e = f * f * (3.0 - 2.0 * f);
@@ -231,13 +264,16 @@ const vertexShader = /* glsl */ `
     vec3 b = aP1;
     if (i > 0.5) { a = aP1; b = aP2; }
     if (i > 1.5) { a = aP2; b = aP3; }
+    if (i > 2.5) { a = aP3; b = aP4; }
     vec3 p = mix(a, b, e);
 
     float turb = sin(3.14159265 * f);
     float calm = 1.0 - smoothstep(0.0, 1.0, uProgress);
     float t = uTime * (0.25 + aR.y * 0.25) + aR.z * 6.2831853;
     vec3 drift = vec3(sin(t + p.y * 0.6), cos(t * 1.1 + p.x * 0.5), sin(t * 0.9 + p.z * 0.7));
-    p += drift * (0.045 + 0.55 * calm + 0.8 * turb * aR.y);
+    // vicino alla scritta "AI" la turbolenza si abbassa, così le lettere restano leggibili
+    float tc = 1.0 - 0.85 * (1.0 - smoothstep(0.0, 0.5, abs(uProgress - 1.0)));
+    p += drift * (0.045 + (0.55 * calm + 0.8 * turb * aR.y) * tc);
 
     // il mouse respinge i punti vicini
     vec2 d = p.xy - uPointer;
@@ -286,6 +322,8 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
   const n = opts.count;
   const s0 = shapeNoise(n, r);
   await tick();
+  const sT = shapeText(n, r, opts.font);
+  await tick();
   const s1 = shapeNetwork(n, r);
   await tick();
   const s2 = shapeChart(n, r);
@@ -297,9 +335,10 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
 
   const geometry = new BufferGeometry();
   geometry.setAttribute("position", new Float32BufferAttribute(s0, 3));
-  geometry.setAttribute("aP1", new Float32BufferAttribute(s1, 3));
-  geometry.setAttribute("aP2", new Float32BufferAttribute(s2, 3));
-  geometry.setAttribute("aP3", new Float32BufferAttribute(s3, 3));
+  geometry.setAttribute("aP1", new Float32BufferAttribute(sT, 3));
+  geometry.setAttribute("aP2", new Float32BufferAttribute(s1, 3));
+  geometry.setAttribute("aP3", new Float32BufferAttribute(s2, 3));
+  geometry.setAttribute("aP4", new Float32BufferAttribute(s3, 3));
   geometry.setAttribute("aR", new Float32BufferAttribute(rand, 4));
 
   const uniforms = {
@@ -378,7 +417,9 @@ export async function createScene(canvas: HTMLCanvasElement, opts: SceneOptions)
     ptr.x += (ptrTarget.x - ptr.x) * 0.15;
     ptr.y += (ptrTarget.y - ptr.y) * 0.15;
 
-    uniforms.uProgress.value = cur.progress;
+    // da progresso "di sezione" (0..3) a progresso delle forme: dopo il rumore c'è una pausa sulla scritta "AI"
+    const u = cur.progress;
+    uniforms.uProgress.value = u < 0.3 ? u / 0.3 : u < 0.45 ? 1 : u < 1 ? 1 + (u - 0.45) / 0.55 : u + 1;
     uniforms.uTime.value = opts.reduced ? 0 : now / 1000;
     // Nell'hero c'è solo il rig; la nuvola di punti compare uscendo dall'hero.
     uniforms.uAlpha.value = sm(0.03, 0.55, cur.progress);
